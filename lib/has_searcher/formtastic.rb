@@ -7,7 +7,7 @@ module Formtastic
       options.reverse_merge! :html => {:method => :get}
       url = params[:controller].sub(/\/\w+$/, '').split("/").map(&:underscore)
       options[:url] ||= url.push name.to_s.pluralize
-      semantic_form_for search_object_for(name), *(args << options), &proc
+      semantic_form_for searcher_for(name), *(args << options), &proc
     end
   end
 
