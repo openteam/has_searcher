@@ -3,6 +3,7 @@ class HasSearcher::Base < ::ApplicationController
     base.class_eval do
       include HasSearcher::Helpers
       helper_method :searcher_for
+      helper_method :searcher
     end
 
   end
