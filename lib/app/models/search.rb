@@ -23,7 +23,7 @@ class Search < ActiveRecord::Base
 
     def search
       klass.search do | search |
-        search.keywords normalize_text(keywords) if search_columns.delete("keywords")
+        search.keywords keywords if search_columns.delete("keywords")
         search_columns.each do | column |
           if column_for_attribute(column).type == :text
             search.keywords normalize(column), :fields => column
@@ -51,14 +51,14 @@ class Search < ActiveRecord::Base
       elsif column_for_attribute(column).type == :integer
         self[column].try(:zero?) ? nil : self[column]
       elsif column_for_attribute(column).type == :text && column == "term"
-        normalize_text(self[column])
+        normalize_term(self[column])
       else
         self[column]
       end
     end
 
-    def normalize_text(text)
-      text.gsub /-/, ' ' if text
+    def normalize_term(text)
+      text.gsub /([^[:alnum:]+])/, ' ' if text
     end
 
     def klass
