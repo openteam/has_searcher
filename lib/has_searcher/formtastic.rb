@@ -18,7 +18,7 @@ module Formtastic
     end
 
     def default_input_type_with_text_as_string_on_search(method, options={})
-      if object.is_a?(Search) && object.column_for_attribute(method).try(:type) == :text
+      if object.is_a?(Search) && object.class.respond_to?(:has_enum?) && !object.class.has_enum?(method) && object.column_for_attribute(method).try(:type) == :text
         :string
       else
         default_input_type_without_text_as_string_on_search(method, options)
