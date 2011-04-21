@@ -44,20 +44,20 @@ class Search < ActiveRecord::Base
     end
 
     def normalize(column)
-      if column != "term" && respond_to?("normalize_#{column}")
+      if respond_to?("normalize_#{column}")
         send "normalize_#{column}"
       elsif self.class.serialized_attributes[column] == Array
         [*self.send("#{column}_before_type_cast")].select(&:present?)
       elsif column_for_attribute(column).type == :integer
         self[column].try(:zero?) ? nil : self[column]
-      elsif column_for_attribute(column).type == :text && column == "term"
-        normalize_term(self[column])
+      elsif column_for_attribute(column).type == :text && column =~ /term$/
+        normalize_term_column(self[column])
       else
         self[column]
       end
     end
 
-    def normalize_term(text)
+    def normalize_term_column(text)
       text.gsub(/[^[:alnum:]]+/, ' ') if text
     end
 
