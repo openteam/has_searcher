@@ -25,10 +25,17 @@ class Search < ActiveRecord::Base
       klass.search do | search |
         search.keywords keywords if search_columns.delete("keywords")
         search_columns.each do | column |
+          value = normalize(column)
           if column_for_attribute(column).type == :text
-            search.keywords normalize(column), :fields => column
+            if fuzzy?(value)
+              search.adjust_solr_params do |params|
+                p params[:q] = value.split(/ /).map{ |value| "#{column}_text:#{value}"}.join(' ')
+              end
+            else
+              search.keywords value, :fields => column
+            end
           else
-            search.with column, normalize(column)
+            search.with column, value
           end
         end
         search.paginate pagination if pagination.try(:any?)
@@ -58,7 +65,11 @@ class Search < ActiveRecord::Base
     end
 
     def normalize_term_column(text)
-      text.gsub(/[^[:alnum:]]+/, ' ') if text
+      text.gsub(/[^[:alnum:]~]+/, ' ').strip if text
+    end
+
+    def fuzzy?(text)
+      text =~ /~/
     end
 
     def klass
