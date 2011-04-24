@@ -29,7 +29,7 @@ class Search < ActiveRecord::Base
           if column_for_attribute(column).type == :text
             if fuzzy?(value)
               search.adjust_solr_params do |params|
-                p params[:q] = value.split(/ /).map{ |value| "#{column}_text:#{value}"}.join(' ')
+                params[:q] = value.split(/ /).map{ |value| "#{column}_text:#{value}"}.join(' ')
               end
             else
               search.keywords value, :fields => column
