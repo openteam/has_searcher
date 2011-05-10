@@ -35,7 +35,14 @@ class Search < ActiveRecord::Base
               search.keywords value, :fields => column
             end
           else
-            search.with column, value
+            case column
+            when /_lt$/
+              search.with(column).less_than(value)
+            when /_gt$/
+              search.with(column).greater_than(value)
+            else
+              search.with column, value
+            end
           end
         end
         search.paginate pagination if pagination.try(:any?)
