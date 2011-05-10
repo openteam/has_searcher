@@ -37,9 +37,9 @@ class Search < ActiveRecord::Base
           else
             case column
             when /_lt$/
-              search.with(column).less_than(value)
+              search.with(column[0..-4]).less_than(value)
             when /_gt$/
-              search.with(column).greater_than(value)
+              search.with(column[0..-4]).greater_than(value)
             else
               search.with column, value
             end
