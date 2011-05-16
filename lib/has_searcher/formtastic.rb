@@ -35,7 +35,7 @@ module Formtastic
           end
           column
         end.map(&:to_sym)
-        args -= [:term]
+        args -= [:term, :order_by, :per_page]
       end
       inputs_without_search(*args, &block)
     end
