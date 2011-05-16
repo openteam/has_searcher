@@ -51,6 +51,7 @@ class Search < ActiveRecord::Base
             end
           end
         end
+        search.order_by order_by if respond_to?(:order_by) && order_by.present?
         search.paginate pagination if pagination.try(:any?)
       end
     end
@@ -60,7 +61,7 @@ class Search < ActiveRecord::Base
     end
 
     def search_columns
-      @search_columns ||= (self.class.column_names - %w[order per_page]).select{ |column| normalize(column).present? }
+      @search_columns ||= (self.class.column_names - %w[per_page order_by]).select{ |column| normalize(column).present? }
     end
 
     def normalize(column)
