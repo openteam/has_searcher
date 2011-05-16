@@ -13,6 +13,12 @@ class Search < ActiveRecord::Base
     end
   end
 
+  def pagination
+    @paginatation ||= {}
+    @paginatation.merge! :per_page => per_page if respond_to? :per_page
+    @paginatation
+  end
+
   delegate :results, :to => :search
 
   def result_ids
@@ -26,7 +32,7 @@ class Search < ActiveRecord::Base
         search.keywords keywords if search_columns.delete("keywords")
         search_columns.each do | column |
           value = normalize(column)
-          if column_for_attribute(column).type == :text
+          if column_for_attribute(column).type == :text && self.class.serialized_attributes[column] != Array
             if fuzzy?(value)
               search.adjust_solr_params do |params|
                 params[:q] = value.split(/ /).map{ |value| "#{column}_text:#{value}"}.join(' ')
@@ -54,7 +60,7 @@ class Search < ActiveRecord::Base
     end
 
     def search_columns
-      @search_columns ||= self.class.column_names.select{ |column| normalize(column).present? }
+      @search_columns ||= (self.class.column_names - %w[order per_page]).select{ |column| normalize(column).present? }
     end
 
     def normalize(column)
