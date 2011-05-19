@@ -14,9 +14,9 @@ class Search < ActiveRecord::Base
   end
 
   def pagination
-    @paginatation ||= {}
-    @paginatation.merge! :per_page => per_page if respond_to? :per_page
-    @paginatation
+    @pagination ||= {}
+    @pagination.merge! per_page: per_page if respond_to? :per_page
+    @pagination
   end
 
   delegate :results, :to => :search
