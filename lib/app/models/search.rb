@@ -51,7 +51,7 @@ class Search < ActiveRecord::Base
             end
           end
         end
-        search.order_by order_by if respond_to?(:order_by) && order_by.present?
+        search.order_by *order_by.split(' ') if respond_to?(:order_by) && order_by.present?
         search.paginate pagination if pagination.try(:any?)
       end
     end
