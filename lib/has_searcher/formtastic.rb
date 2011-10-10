@@ -1,13 +1,15 @@
 require 'formtastic'
 
 module Formtastic
-  module SemanticFormHelper
-    def semantic_search_form_for(name, *args, &proc)
-      options = args.extract_options!
-      options.reverse_merge! :html => {:method => :get}
-      url = params[:controller].sub(/\/\w+$/, '').split("/").map(&:underscore)
-      options[:url] ||= url.push name.to_s.pluralize
-      semantic_form_for searcher_for(name), *(args << options), &proc
+  module Helpers
+    module FormHelper
+      def semantic_search_form_for(name, *args, &proc)
+        options = args.extract_options!
+        options.reverse_merge! :html => {:method => :get}
+        url = params[:controller].sub(/\/\w+$/, '').split("/").map(&:underscore)
+        options[:url] ||= url.push name.to_s.pluralize
+        semantic_form_for searcher_for(name), *(args << options), &proc
+      end
     end
   end
 

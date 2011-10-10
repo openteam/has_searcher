@@ -11,6 +11,14 @@ class Search < ActiveRecord::Base
       columns << ActiveRecord::ConnectionAdapters::Column.new(name.to_s, default,
         sql_type.to_s, null)
     end
+
+    def column_defaults
+      columns.map(&:name).inject({}) do | hash, name | hash[name] = nil; hash end
+    end
+
+    def columns_hash
+      columns.inject({}) do | hash, column | hash[column.name] = column; hash end
+    end
   end
 
   def pagination
