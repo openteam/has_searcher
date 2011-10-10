@@ -13,6 +13,12 @@ module Formtastic
     end
   end
 
+  module SemanticFormHelper
+    def semantic_search_form_for(*args)
+      Formtastic::Helpers::FormHelper.semantic_search_form_for(args)
+    end
+  end
+
   class SemanticFormBuilder
     def search_button(options={})
       commit_button I18n.t('search'), options.merge(button_html:  {name: nil},
