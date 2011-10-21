@@ -36,7 +36,7 @@ class Search < ActiveRecord::Base
   protected
 
     def search
-      klass.search do | search |
+      Sunspot.search klass do | search |
         search.keywords keywords if search_columns.delete("keywords")
         search_columns.each do | column |
           value = normalize(column)
