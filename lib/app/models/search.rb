@@ -28,6 +28,7 @@ class Search < ActiveRecord::Base
   end
 
   delegate :results, :to => :search
+  delegate :total, :to => :search
 
   def result_ids
     search.hits.map(&:primary_key)
