@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.description = %q{This gem adds ability to construct search objects for indexed models.
                      It works with sunspot, inherited_resources and formtastic}
 
-  s.add_dependency "rails", ["> 3.0.0", "< 3.2.0"]
+  s.add_dependency "rails"
   s.rubyforge_project = "has_searcher"
 
   s.files         = `git ls-files`.split("\n")
