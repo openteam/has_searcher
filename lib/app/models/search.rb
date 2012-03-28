@@ -60,13 +60,13 @@ class Search < ActiveRecord::Base
             end
           end
         end
-        additional_search
+        additional_search(search)
         search.order_by *order_by.split(' ') if respond_to?(:order_by) && order_by.present?
         search.paginate pagination if pagination.try(:any?)
       end
     end
 
-    def additional_search
+    def additional_search(search)
     end
 
     def save(validate = true)
