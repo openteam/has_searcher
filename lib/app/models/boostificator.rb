@@ -6,8 +6,10 @@ class Boostificator
 
   attr_accessor :m, :x, :a, :b
 
+  attr_accessor :extra_boost
+
   def initialize(options={})
-    options.reverse_merge!(:a => 1.0, :b => 1.0, :m => 1.0 / MILLIS_IN_YEAR)
+    options.reverse_merge!(:a => 1.0, :b => 1.0, :m => 1.0 / MILLIS_IN_YEAR, :extra_boost => 1.0)
     options.each do |field, value|
       self.send("#{field}=", value)
     end
@@ -16,11 +18,16 @@ class Boostificator
 
   def adjust_solr_params
     search.adjust_solr_params do |params|
-      params[:q] = "{!boost b=map(recip(abs(ms(#{now_s},#{field})),#{m},#{a},#{b}),#{recip_min},#{recip_max},1) defType=dismax}#{params[:q]}" if params[:q]
+      params[:boost] = "product(#{extra_boost},#{recip_s})"
+      params[:defType] = 'edismax'
     end
   end
 
   private
+    def recip_s
+      @recip_s ||= "map(recip(abs(ms(#{now_s},#{field})),#{m},#{a},#{b}),#{recip_min},#{recip_max},1)"
+    end
+
     def now
       @now ||= DateTime.now.change(:min => 0)
     end
