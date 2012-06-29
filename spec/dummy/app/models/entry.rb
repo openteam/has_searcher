@@ -5,5 +5,6 @@ class Entry < ActiveRecord::Base
     text :name
     text :string
     string :state
+    date :published_at
   end
 end

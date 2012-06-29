@@ -5,6 +5,8 @@ describe Searcher do
     Searcher.new :entry do
       keywords :q
 
+      property :published_at, :modificator => :greater_than
+
       scope :published do
         with :state, :published
       end
@@ -22,10 +24,16 @@ describe Searcher do
 
     it { should be_a_search_for(Entry) }
 
-    context 'with q parameter' do
+    context 'q: test' do
       let(:params) { {q:'test'} }
 
       it { should have_search_params :keywords, 'test' }
+    end
+
+    context 'published_at_greater_than: now' do
+      let(:date)   { DateTime.now }
+      let(:params) { { :published_at_greater_than => date } }
+      it { should have_search_params :with, Proc.new{ with(:published_at).greater_than(date) }  }
     end
   end
 
