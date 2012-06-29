@@ -16,7 +16,13 @@ class Searcher
     end
 
     def scope(name, &block)
-      searcher.scopes[name] = block
+      searcher.scopes.class_eval do
+        define_method name do
+          sunspot.build do |sunspot|
+            sunspot.instance_eval &block
+          end
+        end
+      end
     end
   end
 
@@ -24,7 +30,8 @@ class Searcher
 
   def initialize(model_names_or_classes, &block)
     self.models = model_names_or_classes
-    self.scopes = {}
+    self.scopes = Module.new
+    self.extend self.scopes
     self.configure(&block)
   end
 
@@ -57,13 +64,4 @@ class Searcher
     fulltext
   end
 
-  def method_missing(name, *args, &block)
-    if scopes[name]
-      sunspot.build do |sunspot|
-        sunspot.instance_eval(&scopes[name])
-      end
-    else
-      super
-    end
-  end
 end
