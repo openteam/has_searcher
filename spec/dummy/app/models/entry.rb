@@ -4,5 +4,6 @@ class Entry < ActiveRecord::Base
   searchable do
     text :name
     text :string
+    string :status
   end
 end

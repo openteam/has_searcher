@@ -1,6 +1,9 @@
 class Searcher
   class Configuration
-    def initialize(&block)
+    attr_accessor :searcher
+
+    def initialize(searcher, &block)
+      self.searcher = searcher
       instance_eval &block
     end
 
@@ -11,12 +14,17 @@ class Searcher
     def read(attribute)
       instance_variable_get("@#{attribute}")
     end
+
+    def scope(name, &block)
+      searcher.scopes[name] = block
+    end
   end
 
-  attr_accessor :models, :params, :configuration, :sunspot
+  attr_accessor :models, :params, :configuration, :sunspot, :scopes
 
   def initialize(model_names_or_classes, &block)
     self.models = model_names_or_classes
+    self.scopes = {}
     self.configure(&block)
   end
 
@@ -27,7 +35,7 @@ class Searcher
   end
 
   def configure(&block)
-    self.configuration = Configuration.new(&block)
+    self.configuration = Configuration.new(self, &block)
   end
 
   def params=(params)
@@ -47,5 +55,15 @@ class Searcher
 
   def execute
     fulltext
+  end
+
+  def method_missing(name, *args, &block)
+    if scopes[name]
+      sunspot.build do |sunspot|
+        sunspot.instance_eval(&scopes[name])
+      end
+    else
+      super
+    end
   end
 end
