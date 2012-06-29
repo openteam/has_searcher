@@ -1,23 +1,25 @@
-# -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require "has_searcher/version"
+$:.push File.expand_path('../lib', __FILE__)
 
+# Maintain your gem's version:
+require 'has_searcher/version'
+
+# Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "has_searcher"
+  s.name        = 'has_searcher'
   s.version     = HasSearcher::VERSION
-  s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Dmitry Lihachev"]
-  s.email       = ["lda@openteam.ru"]
-  s.homepage    = "http://github.com/openteam/has_searcher"
-  s.summary     = %q{Adds ability to construct search objects for indexed models}
-  s.description = %q{This gem adds ability to construct search objects for indexed models.
-                     It works with sunspot, inherited_resources and formtastic}
+  s.authors     = ['Dmitry Lihachev']
+  s.email       = ['lda@openteam.ru']
+  s.homepage    = 'http://github.com/openteam/has_searcher'
+  s.summary     = 'Adds ability to construct search objects for indexed models'
+  s.description = %q{This gem adds ability to construct search objects for indexed models, build search forms and execute searches.
+                     It works with sunspot, inherited_resources and simple_form/formtastic}
 
-  s.add_dependency "rails"
-  s.rubyforge_project = "has_searcher"
+  s.files = Dir['{app,config,db,lib}/**/*'] + ['MIT-LICENSE', 'Rakefile', 'README.rdoc']
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["lib"]
+  s.add_dependency 'rails', '~> 3.2.6'
+
+  s.add_development_dependency 'sqlite3'
+  s.add_development_dependency 'rspec-rails'
+  s.add_development_dependency 'sunspot_matchers'
+  s.add_development_dependency 'sunspot_rails', '>= 2.0.0.pre'
 end
