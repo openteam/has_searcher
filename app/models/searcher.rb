@@ -2,36 +2,34 @@ class Searcher
   class Configuration
     attr_accessor :searcher
 
+    attr_accessor :keywords_field, :scopes, :default_scopes
+
     def initialize(searcher, &block)
       self.searcher = searcher
-      instance_eval &block
+      self.scopes = {}
+      scope do |sunspot|
+        sunspot.fulltext searcher.params[searcher.configuration.keywords_field]
+      end
+      instance_eval &block if block
     end
 
     def keywords(field)
-      @keywords = field
+      self.keywords_field = field
     end
 
-    def read(attribute)
-      instance_variable_get("@#{attribute}")
-    end
-
-    def scope(name, &block)
-      searcher.scopes.class_eval do
-        define_method name do
-          sunspot.build do |sunspot|
-            sunspot.instance_eval &block
-          end
-        end
-      end
+    def scope(name=:scoped, &block)
+      scopes[name] ||= []
+      scopes[name] << block
     end
   end
 
-  attr_accessor :models, :params, :configuration, :sunspot, :scopes
+  attr_accessor :models, :params, :configuration, :sunspot
+  attr_accessor :scope_chain
 
   def initialize(model_names_or_classes, &block)
     self.models = model_names_or_classes
-    self.scopes = Module.new
-    self.extend self.scopes
+    self.params = {}
+    self.scope_chain = [:scoped]
     self.configure(&block)
   end
 
@@ -45,23 +43,40 @@ class Searcher
     self.configuration = Configuration.new(self, &block)
   end
 
-  def params=(params)
-    @params = params
-    self.sunspot = nil
-  end
-
   def sunspot
     @sunspot ||= Sunspot.new_search models
   end
 
-  def fulltext
-    sunspot.build do
-      fulltext params[configuration.read(:keywords)]
-    end
+  def all
+    execute
+    sunspot.results
   end
 
   def execute
-    fulltext
+    scope_chain.uniq.each do |scope_name|
+      configuration.scopes[scope_name].each do |block|
+        sunspot.build do |sunspot|
+          sunspot.instance_eval &block
+        end
+      end
+    end
+    sunspot.execute
+  end
+
+  def search(params)
+    self.params = params
+    all
+  end
+
+  delegate :inspect, :to => :all
+
+  def method_missing(name, *args, &block)
+    if configuration.scopes.include?(name)
+      scope_chain << name
+      self
+    else
+      super
+    end
   end
 
 end

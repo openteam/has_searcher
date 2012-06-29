@@ -6,18 +6,19 @@ describe Searcher do
       keywords :q
 
       scope :published do
-        with :status, :published
+        with :state, :published
       end
     end
   end
 
   subject { Sunspot.session }
 
+  before { searcher.params = params }
+
   describe "#execute" do
     let(:params) { {} }
 
-    before { searcher.params = params }
-    before { searcher.execute }
+    before { searcher.scoped.execute }
 
     it { should be_a_search_for(Entry) }
 
@@ -30,8 +31,11 @@ describe Searcher do
 
   describe 'scopes' do
     context '#published' do
-      before { searcher.published }
-      it { should have_search_params :with, :status, :published }
+      let(:params) { {q:'test'} }
+      before { searcher.published.execute }
+
+      it { should have_search_params :with, :state, :published }
+      it { should have_search_params :keywords, 'test'}
     end
   end
 end
