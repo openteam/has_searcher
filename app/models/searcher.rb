@@ -3,6 +3,8 @@ class Searcher
   attr_accessor :models, :params, :configuration, :sunspot
   attr_accessor :scope_chain
 
+  delegate :inspect, :to => :all
+
   def initialize(model_names_or_classes, &block)
     self.models = model_names_or_classes
     self.params = {}
@@ -40,18 +42,18 @@ class Searcher
     all
   end
 
-  delegate :inspect, :to => :all
-
-  def method_missing(name, *args, &block)
-    if configuration.scopes.include?(name)
-      scope_chain << name
-      self
-    else
-      super
-    end
+  def search_object
+    @search_object ||= create_search_object
   end
 
   private
+
+    def create_search_object
+      object = Searcher::Model.new
+      object.extend configuration.search_object_methods
+      object.attributes = params
+      object
+    end
 
     def build_query
       scope_chain.uniq.each do |scope_name|
@@ -70,6 +72,15 @@ class Searcher
             search.facet facet_name, &block
           end
         end
+      end
+    end
+
+    def method_missing(name, *args, &block)
+      if configuration.scopes.include?(name)
+        scope_chain << name
+        self
+      else
+        super
       end
     end
 end

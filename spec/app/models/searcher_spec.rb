@@ -36,8 +36,16 @@ describe Searcher do
     context 'published_at_greater_than: now' do
       let(:date)   { DateTime.now }
       let(:params) { { :published_at_greater_than => date } }
-      it { should have_search_params :with, Proc.new{ with(:published_at).greater_than(date) }  }
+      it { should have_search_params :with, Proc.new{ with(:published_at).greater_than(date) } }
     end
+  end
+
+  describe '#search_object' do
+    let(:params) { {:q => 'test'} }
+    subject { searcher.search_object }
+    it { should respond_to :published_at_greater_than }
+    it { should respond_to :q }
+    its(:q) { should == 'test' }
   end
 
   describe 'scopes' do
