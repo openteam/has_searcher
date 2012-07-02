@@ -22,4 +22,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'sunspot_matchers'
   s.add_development_dependency 'sunspot_rails', '>= 2.0.0.pre'
+  s.add_development_dependency 'sunspot_solr', '>= 2.0.0.pre'
 end
