@@ -6,12 +6,16 @@ describe Searcher do
       keywords :q
 
       property :published_at, :modificator => :greater_than
+      property :categories
 
-      scope :published do
-        with :state, :published
+      scope :published do |sunspot|
+        sunspot.with :state, :published
       end
 
-      facet :categories
+      scope do |sunspot|
+        categories_filter = sunspot.with(:categories, searcher.search_object.categories)
+        sunspot.facet :categories, :exclude => categories_filter
+      end
     end
   end
 
@@ -59,7 +63,13 @@ describe Searcher do
   end
 
   describe 'facets' do
+    let(:params) { {:categories => ['One', 'Two']} }
     before { searcher.execute }
-    it { should have_search_params :facet, :categories }
+    it do
+      should have_search_params :facet, Proc.new {
+        category_filter = with(:categories, ['One', 'Two'])
+        facet :categories, :exclude => category_filter
+      }
+    end
   end
 end

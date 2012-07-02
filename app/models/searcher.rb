@@ -8,7 +8,7 @@ class Searcher
   def initialize(model_names_or_classes, &block)
     self.models = model_names_or_classes
     self.params = {}
-    self.scope_chain = [:scoped]
+    self.scope_chain = [:default]
     self.configure(&block)
   end
 
@@ -46,6 +46,10 @@ class Searcher
     @search_object ||= create_search_object
   end
 
+  def scoped
+    default
+  end
+
   private
 
     def create_search_object
@@ -59,7 +63,7 @@ class Searcher
       scope_chain.uniq.each do |scope_name|
         configuration.scopes[scope_name].each do |block|
           sunspot.build do |sunspot|
-            sunspot.instance_eval &block
+            block.call(sunspot)
           end
         end
       end

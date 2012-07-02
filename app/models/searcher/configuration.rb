@@ -45,8 +45,9 @@ class Searcher::Configuration
     self.facets[name] = block
   end
 
-  def scope(name=:scoped, &block)
+  def scope(name=:default, &block)
     self.scopes[name] ||= []
     self.scopes[name] << block
   end
+
 end
