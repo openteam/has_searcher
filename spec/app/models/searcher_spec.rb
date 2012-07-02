@@ -10,15 +10,18 @@ describe Searcher do
       scope :published do
         with :state, :published
       end
+
+      facet :categories
     end
   end
 
   subject { Sunspot.session }
 
+  let(:params) { {} }
+
   before { searcher.params = params }
 
   describe "#execute" do
-    let(:params) { {} }
 
     before { searcher.scoped.execute }
 
@@ -45,5 +48,10 @@ describe Searcher do
       it { should have_search_params :with, :state, :published }
       it { should have_search_params :keywords, 'test'}
     end
+  end
+
+  describe 'facets' do
+    before { searcher.execute }
+    it { should have_search_params :facet, :categories }
   end
 end

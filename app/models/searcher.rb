@@ -2,12 +2,13 @@ class Searcher
   class Configuration
     attr_accessor :searcher, :scopes
 
-    attr_accessor :keywords_field, :properties
+    attr_accessor :keywords_field, :properties, :facets
 
     def initialize(searcher, &block)
       self.searcher = searcher
       self.scopes = {}
       self.properties = {}
+      self.facets = {}
       instance_eval &block if block
       scope do |sunspot|
         sunspot.fulltext searcher.params[searcher.configuration.keywords_field]
@@ -28,9 +29,13 @@ class Searcher
       self.properties[field] = options
     end
 
+    def facet(name, &block)
+      self.facets[name] = block
+    end
+
     def scope(name=:scoped, &block)
-      scopes[name] ||= []
-      scopes[name] << block
+      self.scopes[name] ||= []
+      self.scopes[name] << block
     end
   end
 
@@ -64,13 +69,8 @@ class Searcher
   end
 
   def execute
-    scope_chain.uniq.each do |scope_name|
-      configuration.scopes[scope_name].each do |block|
-        sunspot.build do |sunspot|
-          sunspot.instance_eval &block
-        end
-      end
-    end
+    build_query
+    set_facets
     sunspot.execute
   end
 
@@ -90,4 +90,25 @@ class Searcher
     end
   end
 
+  private
+
+    def build_query
+      scope_chain.uniq.each do |scope_name|
+        configuration.scopes[scope_name].each do |block|
+          sunspot.build do |sunspot|
+            sunspot.instance_eval &block
+          end
+        end
+      end
+    end
+
+    def set_facets
+      configuration.facets.each_pair do |facet_name, block|
+        sunspot.build do |search|
+          search.instance_eval do |search|
+            search.facet facet_name, &block
+          end
+        end
+      end
+    end
 end

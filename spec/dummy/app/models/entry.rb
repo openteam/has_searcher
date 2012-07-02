@@ -6,5 +6,6 @@ class Entry < ActiveRecord::Base
     text :string
     string :state
     date :published_at
+    string :categories, :multiple => true
   end
 end
