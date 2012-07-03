@@ -13,7 +13,7 @@ describe Searcher do
       end
 
       scope do |sunspot|
-        categories_filter = sunspot.with(:categories, searcher.search_object.categories)
+        categories_filter = sunspot.with(:categories, search_object.categories)
         sunspot.facet :categories, :exclude => categories_filter
       end
     end
@@ -23,7 +23,7 @@ describe Searcher do
 
   let(:params) { {} }
 
-  before { searcher.params = params }
+  before { searcher.search_object.attributes = params }
 
   describe "#execute" do
 

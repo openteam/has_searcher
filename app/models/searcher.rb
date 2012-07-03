@@ -1,13 +1,12 @@
 class Searcher
 
-  attr_accessor :models, :params, :configuration, :sunspot
+  attr_accessor :models, :configuration, :sunspot
   attr_accessor :scope_chain
 
   delegate :inspect, :to => :all
 
   def initialize(model_names_or_classes, &block)
     self.models = model_names_or_classes
-    self.params = {}
     self.scope_chain = [:default]
     self.configure(&block)
   end
@@ -37,13 +36,8 @@ class Searcher
     sunspot.execute
   end
 
-  def search(params)
-    self.params = params
-    all
-  end
-
   def search_object
-    @search_object ||= create_search_object
+    @search_object ||= Searcher::Model.new
   end
 
   def scoped
@@ -51,13 +45,6 @@ class Searcher
   end
 
   private
-
-    def create_search_object
-      object = Searcher::Model.new
-      object.extend configuration.search_object_methods
-      object.attributes = params
-      object
-    end
 
     def build_query
       scope_chain.uniq.each do |scope_name|
