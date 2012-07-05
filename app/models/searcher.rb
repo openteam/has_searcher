@@ -1,47 +1,70 @@
 class Searcher
 
-  attr_accessor :models, :configuration, :sunspot
+  attr_accessor :configuration, :sunspot, :search_object
   attr_accessor :scope_chain
 
-  delegate :inspect, :to => :all
+  delegate :inspect, :to => :results
 
-  def initialize(model_names_or_classes, &block)
-    self.models = model_names_or_classes
-    self.scope_chain = [:default]
-    self.configure(&block)
-  end
-
-  def models=(names_or_clases)
-    @models = [names_or_clases].map do |name_or_class|
-      name_or_class.is_a?(Class) ? name_or_class : name_or_class.to_s.classify.constantize
-    end
-  end
-
-  def configure(&block)
+  def initialize(&block)
+    self.scope_chain = [:default, :runtime]
+    self.search_object = Searcher::Model.new(self)
     self.configuration = Configuration.new(self, &block)
   end
 
   def sunspot
-    @sunspot ||= Sunspot.new_search models
+    @sunspot ||= Sunspot.new_search configuration.search_models
   end
 
-  def all
-    execute
-    sunspot.results
+  def each(&block)
+    results.each(&block)
   end
 
-  def execute
-    build_query
-    set_facets
-    sunspot.execute
+  delegate :results, :total, :facet, :to => :executed_sunspot
+  alias_method :all, :results
+
+  def result_ids
+    executed_sunspot.hits.map(&:primary_key)
   end
 
-  def search_object
-    @search_object ||= Searcher::Model.new
+  def order_by(name, type=:asc)
+    configuration.scope :runtime do |sunspot|
+      sunspot.order_by(name)
+    end
+  end
+  alias_method :order, :order_by
+
+  def limit(number)
+    paginate(:per_page => number)
+  end
+  alias_method :per_page, :limit
+  alias_method :per, :limit
+
+  def page(number)
+    paginate(:page => number)
+  end
+
+  def paginate(params)
+    configuration.scope :runtime do |sunspot|
+      sunspot.paginate(params)
+    end
   end
 
   def scoped
-    default
+    default.runtime
+  end
+
+  def execute
+    unless @executed
+      build_query
+      set_facets
+      sunspot.execute
+      @executed = true
+    end
+  end
+
+  def executed_sunspot
+    execute
+    sunspot
   end
 
   private
@@ -50,7 +73,14 @@ class Searcher
       scope_chain.uniq.each do |scope_name|
         configuration.scopes[scope_name].each do |block|
           sunspot.build do |sunspot|
-            block.call(sunspot)
+            case block.arity
+            when 0
+              sunspot.instance_eval(&block)
+            when 1
+              block.call(sunspot)
+            else
+              raise ArgumentError.new "arity > 1 not supported"
+            end
           end
         end
       end

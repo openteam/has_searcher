@@ -2,7 +2,9 @@ require 'spec_helper'
 
 describe Searcher do
   let(:searcher) do
-    Searcher.new :entry do
+    Searcher.new do
+      models :entry
+
       keywords :q
 
       property :published_at, :modificator => :greater_than
