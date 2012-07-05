@@ -53,6 +53,14 @@ class Searcher
     default.runtime
   end
 
+  def boost_by(field, options={})
+    boostificator = Boostificator.new(field, options)
+    configuration.scope :runtime do |sunspot|
+      puts ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> boost <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+      boostificator.adjust_solr_params(sunspot)
+    end
+  end
+
   def execute
     unless @executed
       build_query
