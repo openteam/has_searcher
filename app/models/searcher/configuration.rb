@@ -54,8 +54,12 @@ class Searcher::Configuration
 
     if modificators.empty?
       search_object.create_field(field, options)
-      scope do |sunspot|
-        sunspot.with(field, search_object.send(field)) if search_object.send(field).presence
+      if block
+        scope &block
+      else
+        scope do |sunspot|
+          sunspot.with(field, search_object.send(field)) if search_object.send(field).presence
+        end
       end
     end
   end
@@ -68,6 +72,5 @@ class Searcher::Configuration
     scopes[name] ||= []
     scopes[name] << block if block
     searcher
-end
   end
-
+end

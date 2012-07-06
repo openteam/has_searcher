@@ -3,7 +3,7 @@ class Searcher
   attr_accessor :configuration, :sunspot, :search_object
   attr_accessor :scope_chain
 
-  delegate :inspect, :to => :results
+  delegate :current_page, :num_pages, :limit_value, :to => :results
 
   def initialize(&block)
     self.scope_chain = [:default, :runtime]
@@ -56,7 +56,6 @@ class Searcher
   def boost_by(field, options={})
     boostificator = Boostificator.new(field, options)
     configuration.scope :runtime do |sunspot|
-      puts ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> boost <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
       boostificator.adjust_solr_params(sunspot)
     end
   end
@@ -107,9 +106,9 @@ class Searcher
     def method_missing(name, *args, &block)
       if configuration.scopes.include?(name)
         scope_chain << name
-        self
-      else
-        super
+        return self
       end
+      return results.send(name, *args, &block) if results.respond_to?(name)
+      super
     end
 end
