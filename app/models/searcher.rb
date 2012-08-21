@@ -4,6 +4,9 @@ class Searcher
   attr_accessor :scope_chain
 
   delegate :current_page, :num_pages, :limit_value, :to => :results
+  delegate :results, :total, :facet, :group, :to => :executed_sunspot
+  alias_method :all, :results
+
 
   def initialize(&block)
     self.scope_chain = [:default, :runtime]
@@ -18,9 +21,6 @@ class Searcher
   def each(&block)
     results.each(&block)
   end
-
-  delegate :results, :total, :facet, :to => :executed_sunspot
-  alias_method :all, :results
 
   def result_ids
     executed_sunspot.hits.map(&:primary_key)

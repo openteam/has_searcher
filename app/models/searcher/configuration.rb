@@ -73,4 +73,10 @@ class Searcher::Configuration
     scopes[name] << block if block
     searcher
   end
+
+  def group(name)
+    scope do
+      group(name)
+    end
+  end
 end

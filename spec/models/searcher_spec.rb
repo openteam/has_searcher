@@ -74,4 +74,16 @@ describe Searcher do
       }
     end
   end
+
+  describe 'group' do
+    let(:searcher) do
+      Searcher.new do
+        models :entry
+        group :entry_id_str
+      end
+    end
+
+    # TODO: update to search params when Sunspot::Matchers can support group testing
+    it { searcher.group(:entry_id_str).should be_a(Sunspot::Search::FieldGroup) }
+  end
 end
