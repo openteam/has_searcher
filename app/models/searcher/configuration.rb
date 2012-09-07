@@ -79,4 +79,16 @@ class Searcher::Configuration
       group(name)
     end
   end
+
+  def more_like_this(*args)
+    @more_like_this = args
+  end
+
+  def more_like_this?
+    !!@more_like_this
+  end
+
+  def more_like_this_params
+    @more_like_this
+  end
 end

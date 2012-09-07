@@ -15,7 +15,11 @@ class Searcher
   end
 
   def sunspot
-    @sunspot ||= Sunspot.new_search configuration.search_models
+    @sunspot ||= if configuration.more_like_this?
+                   Sunspot.new_more_like_this *configuration.more_like_this_params
+                 else
+                   Sunspot.new_search configuration.search_models
+                 end
   end
 
   def each(&block)
@@ -58,6 +62,11 @@ class Searcher
     configuration.scope :runtime do |sunspot|
       boostificator.adjust_solr_params(sunspot)
     end
+  end
+
+  def more_like_this(object, *types, &block)
+    configuration.more_like_this(object, *types, &block)
+    self
   end
 
   def execute
