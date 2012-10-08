@@ -4,7 +4,7 @@ class Searcher
   attr_accessor :scope_chain
 
   delegate :current_page, :num_pages, :limit_value, :to => :results
-  delegate :results, :total, :facet, :group, :to => :executed_sunspot
+  delegate :results, :total, :facet, :group, :hits, :each_hit_with_result, :to => :executed_sunspot
   alias_method :all, :results
 
 
