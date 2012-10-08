@@ -11,4 +11,8 @@ module HasSearcher
       searcher.search_object.attributes = params
     end
   end
+
+  def self.cacheble_now
+    1.minute.since.change(:min => 0)
+  end
 end
