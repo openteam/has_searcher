@@ -12,7 +12,7 @@ module HasSearcher
     end
   end
 
-  def self.cacheble_now
+  def self.cacheable_now
     1.minute.since.change(:sec => 0)
   end
 end
