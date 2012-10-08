@@ -30,7 +30,7 @@ class Searcher::Boostificator
     end
 
     def now
-      @now ||= HasSearcher.cacheble_now
+      @now ||= HasSearcher.cacheable_now
     end
 
     def recip
