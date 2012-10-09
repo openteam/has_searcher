@@ -17,10 +17,10 @@ class Searcher::Configuration
     instance_eval &block if block
   end
 
-  def keywords(field, options={})
+  def keywords(field, options={}, &block)
     search_object.create_field(field, options)
     scope do |sunspot|
-      sunspot.fulltext search_object.send(field) if search_object.send(field).presence
+      sunspot.fulltext(search_object.send(field), &block) if search_object.send(field).presence
     end
   end
 
