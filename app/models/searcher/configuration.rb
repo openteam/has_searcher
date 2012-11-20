@@ -58,7 +58,17 @@ class Searcher::Configuration
         scope &block
       else
         scope do |sunspot|
-          sunspot.with(field, search_object.send(field)) if search_object.send(field).presence
+          if (value = search_object.send(field)).present?
+            if value.is_a? Array
+              sunspot.all_of do |all_of|
+                value.each do |v|
+                  all_of.with(field, v)
+                end
+              end
+            else
+              sunspot.with(field, value)
+            end
+          end
         end
       end
     end

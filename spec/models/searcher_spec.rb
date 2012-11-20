@@ -39,6 +39,17 @@ describe Searcher do
       it { should have_search_params :keywords, 'test' }
     end
 
+    context 'categories: [1,2]' do
+      let(:params) { {categories: [1, 2]} }
+
+      it { should have_search_params :with, Proc.new {
+        all_of do
+          with :categories, 1
+          with :categories, 2
+        end
+      } }
+    end
+
     context 'published_at_greater_than: now' do
       let(:date)   { DateTime.now }
       let(:params) { { :published_at_greater_than => date } }
