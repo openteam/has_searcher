@@ -1,3 +1,3 @@
 module HasSearcher
-  VERSION = "0.0.95.4"
+  VERSION = "0.0.96"
 end
