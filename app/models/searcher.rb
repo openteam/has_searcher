@@ -32,7 +32,7 @@ class Searcher
 
   def order_by(name, type=:asc)
     configuration.scope :runtime do |sunspot|
-      sunspot.order_by(name)
+      sunspot.order_by(name, type)
     end
   end
   alias_method :order, :order_by
